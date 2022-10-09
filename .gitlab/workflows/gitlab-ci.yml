@@ -1,0 +1,35 @@
+image: python:3.10-buster
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
+stages:
+  - lint
+  - test
+
+before_script:
+  - python --version
+  - python -m pip install -U virtualenv
+  - python -m virtualenv .venv
+  - source .venv/bin/activate
+  - python -m pip install -U poetry setuptools importlib-metadata
+  - python -m poetry install
+
+pre_commit:
+  stage: lint
+  script:
+    - pre-commit run --all-files
+
+mypy:
+  stage: lint
+  script:
+    - poetry run mypy .
+
+pytest:
+  stage: test
+  script:
+    - poetry run pytest .
