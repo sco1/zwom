@@ -1,6 +1,118 @@
 # ZWO
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/zwolang)](https://pypi.org/project/zwolang/)
+[![PyPI](https://img.shields.io/pypi/v/zwolang)](https://pypi.org/project/zwolang/)
+[![PyPI - License](https://img.shields.io/pypi/l/zwolang?color=magenta)](https://github.com/sco1/zwolang/blob/master/LICENSE)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sco1/zwolang/main.svg)](https://results.pre-commit.ci/latest/github/sco1/zwolang/main)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
-[![Open in Visual Studio Code](https://img.shields.io/badge/Open%20in-VSCode.dev-blue)](https://vscode.dev/github.com/sco1/zwo)
+[![Open in Visual Studio Code](https://img.shields.io/badge/Open%20in-VSCode.dev-blue)](https://vscode.dev/github.com/sco1/zwolang)
 
 Python toolkit for the ZWO minilang.
+
+## Installation
+Install from PyPi with your favorite `pip` invocation:
+
+```bash
+$ pip install zwolang
+```
+
+## The ZWO File Specification
+The primary purpose of this package is to provide a simple, human-readable format for constructing Zwift workouts that can be used to generate the actual workout XML.
+
+ZWO files are parsed using a [Parsimonious](https://github.com/erikrose/parsimonious) grammar, as specified below:
+<!-- [[[cog
+from textwrap import dedent
+import cog
+from zwo.parser import RAW_GRAMMAR
+cog.out(
+    f"```{dedent(RAW_GRAMMAR)}```"
+)
+]]] -->
+```
+workout   = (block elws*)+ emptyline*
+block     = tag ws "{" (((message / value) ","?) / elws)+ "}"
+value     = tag ws (string / range / rangeval)
+
+message   = "@" ws duration ws string
+range     = rangeval ws "->" ws rangeval
+rangeval  = (duration / numeric)
+
+duration  = number ":" number
+percent   = number "%"
+numeric   = (percent / number)
+elws      = (ws / emptyline)
+
+tag       = ~"[A-Z]+"
+string    = ~'"[^\"]+"'
+number    = ~"\d+"
+ws        = ~"\s*"
+emptyline = ws+
+```
+<!-- [[[end]]] -->
+
+### Syntax & Keywords
+Like Zwift's built-in workout builder, the ZWO minilang is a block-based system. Blocks are specified using a `<tag> {<block contents>}` format supporting arbitrary whitespace.
+
+Each ZWO file must begin with a `META` block containing comma-separated parameters:
+
+| Keyword       | Description             | Accepted Inputs                  | Optional? |
+|---------------|-------------------------|----------------------------------|-----------|
+| `NAME`        | Displayed workout name  | `str`                            | No        |
+| `AUTHOR`      | Workout author          | `str`                            | No        |
+| `DESCRIPTION` | Workout description     | `str`                            | No        |
+| `TAGS`        | Workout tags            | String of comma separated values | Yes       |
+| `FTP`         | Rider's FTP<sup>1</sup> | `int`                            | Yes       |
+
+1. If specified, the rider's FTP is not used by Zwift directly. It is instead used to optionally normalize the workout's target power percentages to watts
+
+Following the `META` block are your workout blocks:
+
+| Keyword       | Description        |
+|---------------|--------------------|
+| `FREE`        | Free ride          |
+| `INTERVALS`   | Intervals          |
+| `RAMP`        | Ramp               |
+| `SEGMENT`     | Steady segment     |
+| `WARMUP`      | Warmup<sup>1</sup> |
+
+1. I believe Zwift considers these the same as Ramp intervals, so the ZWO package does the same
+
+Workout blocks can contain the following comma-separated parameters:
+
+| Keyword             | Description         | Accepted Inputs             | Optional?                |
+|---------------------|---------------------|-----------------------------|--------------------------|
+| `DURATION`          | Block duration      | `MM:SS`<sup>1</sup>         | No                       |
+| `CADENCE`           | Target cadence      | `int`<sup>1</sup>           | Yes                      |
+| `COUNT`             | Number of intervals | `int`                       | Only valid for intervals |
+| `POWER`             | Target power        | `int` or `int%`<sup>1</sup> | Mostly no<sup>2</sup>    |
+| `@`                 | Display a message   | `@ MM:SS str`<sup>3</sup>   | Yes                      |
+
+1. For Interval & Ramp segments, the range syntax can be used to set values for the work/rest segments (e.g. `65% -> 120%`)
+2. Power is optional for Free segments
+3. Message timestamps are relative to their containing block
+
+
+### Sample Workout
+```
+META {
+    NAME "My Workout",
+    AUTHOR "Some Author",
+    DESCRIPTION "Here's a description!",
+    TAGS "super, sweet, workout",
+    FTP 270,
+}
+FREE {DURATION 10:00}
+INTERVALS {
+    COUNT 3,
+    DURATION 1:00 -> 0:30,
+    POWER 55% -> 78%,
+    CADENCE 85 -> 110,
+}
+SEGMENT {DURATION 2:00, POWER 65%}
+RAMP {
+    DURATION 2:00,
+    POWER 120% -> 140%,
+    @ 0:00 "Here goes the ramp!",
+    @ 1:50 "10 seconds left!",
+}
+FREE {DURATION 10:00}
+```

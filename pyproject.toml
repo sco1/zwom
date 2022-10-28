@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ZWO"
+name = "zwolang"
 version = "0.1.0"
 description = "Python toolkit for the ZWO minilang"
 authors = ["sco1 <sco1.git@gmail.com>"]
@@ -21,10 +21,14 @@ packages = [{include="zwo"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+parsimonious = "^0.10"
+rich = "^12.6"
+typer = {extras = ["rich"], version = "^0.6"}
 
 [tool.poetry.dev-dependencies]
 black = "^22.8"
 bump2version = "^1.0"
+cogapp = "^3.3"
 flake8 = "^5.0"
 flake8-annotations = "^2.9"
 flake8-bugbear = "^22.9"

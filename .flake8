@@ -21,3 +21,4 @@ extend-exclude=
     .venv,
 per-file-ignores =
     tests/test_*.py:D103 E501,
+    zwo/parser.py: D101, D102,
