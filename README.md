@@ -1,4 +1,4 @@
-# ZWO
+# ZWO Minilang
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/zwolang)](https://pypi.org/project/zwolang/)
 [![PyPI](https://img.shields.io/pypi/v/zwolang)](https://pypi.org/project/zwolang/)
 [![PyPI - License](https://img.shields.io/pypi/l/zwolang?color=magenta)](https://github.com/sco1/zwolang/blob/master/LICENSE)
@@ -52,6 +52,7 @@ emptyline = ws+
 ### Syntax & Keywords
 Like Zwift's built-in workout builder, the ZWO minilang is a block-based system. Blocks are specified using a `<tag> {<block contents>}` format supporting arbitrary whitespace.
 
+### Workout Metadata
 Each ZWO file must begin with a `META` block containing comma-separated parameters:
 
 | Keyword       | Description             | Accepted Inputs                | Optional?         |
@@ -66,18 +67,26 @@ Each ZWO file must begin with a `META` block containing comma-separated paramete
 2. Zwift's workouts are generated using FTP percentages rather than absolute watts, so your FTP is required if you want to use absolute watts in your ZWOM.
 3. Tags are capped at x total characters, including hashtags. Zwift also provides 4 built-in tags (`#RECOVERY`, `#INTERVALS`, `#FTP`, and `#TT`) that may also be added and do not count against this total.
 
+### Workout Blocks
 Following the `META` block are your workout blocks:
 
-| Keyword            | Description        |
-|--------------------|--------------------|
-| `FREE`             | Free ride          |
-| `INTERVALS`        | Intervals          |
-| `RAMP`<sup>1</sup> | Ramp               |
-| `SEGMENT`          | Steady segment     |
-| `WARMUP`           | Warmup             |
+| Keyword     | Description        |
+|-------------|--------------------|
+| `FREE`      | Free ride          |
+| `COOLDOWN`  | Cooldown           |
+| `INTERVALS` | Intervals          |
+| `RAMP`      | Ramp               |
+| `SEGMENT`   | Steady segment     |
+| `WARMUP`    | Warmup             |
 
-1. Zwift doesn't have an explicit Ramp block, so this is just an alias for the Warmup block (which is a ramp).
+**NOTE:** While there is no specific Ramp block in the workout building UI, some experimental observations have been made:
+  * If a ramp is at the very beginning of the workout, Zwift serializes it as a Warmup block
+  * If there are multiple blocks in a workout and a ramp is at the end, Zwift serializes it as a Cooldown block
+  * If there are multiple blocks in a workout and a ramp is not at the beginning or the end, Zwift serializes it as a Ramp block
 
+When writing your `*.zwom` file, these 3 blocks can be used interchangably, and ZWOM will try to match this behavior when outputting its `*.zwo` file. Zwift may do its own normalization if edits are made in the workout UI.
+
+### Workout Block Metadata
 Workout blocks can contain the following comma-separated parameters:
 
 | Keyword    | Description         | Accepted Inputs             | Optional?                |
@@ -88,7 +97,7 @@ Workout blocks can contain the following comma-separated parameters:
 | `POWER`    | Target power        | `int` or `int%`<sup>1</sup> | Mostly no<sup>2</sup>    |
 | `@`        | Display a message   | `@ MM:SS str`<sup>3</sup>   | Yes                      |
 
-1. For Interval & Ramp segments, the range syntax can be used to set values for the work/rest segments (e.g. `65% -> 120%`).
+1. For Interval & Ramp segments, the range syntax can be used to set values for the `<work> -> <rest>` segments (e.g. `65% -> 120%`).
 2. Power is ignored for Free segments.
 3. Message timestamps are relative to their containing block.
 

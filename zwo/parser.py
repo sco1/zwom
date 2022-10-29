@@ -35,7 +35,7 @@ GRAMMAR = Grammar(RAW_GRAMMAR)
 class Tag(StrEnum):
     AUTHOR = auto()
     CADENCE = auto()
-    REPEAT = auto()
+    COOLDOWN = auto()
     DESCRIPTION = auto()
     DURATION = auto()
     FREE = auto()
@@ -45,6 +45,7 @@ class Tag(StrEnum):
     NAME = auto()
     POWER = auto()
     RAMP = auto()
+    REPEAT = auto()
     SEGMENT = auto()
     TAGS = auto()
     WARMUP = auto()
@@ -82,6 +83,15 @@ class Range:
     @classmethod
     def from_node(cls, visited_children: list[Node]) -> Range:
         left, *_, right = visited_children
+
+        # I'm not sure how to best keep the numeric values from nesting, I might be misunderstanding
+        # how the parser is working or have something written poorly in the grammar but for now this
+        # hack functions
+        if isinstance(left, list):
+            left = left[0]
+        if isinstance(right, list):
+            right = right[0]
+
         return cls(left=left, right=right)
 
 
