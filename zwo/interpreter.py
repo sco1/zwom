@@ -57,4 +57,4 @@ def visit_ramp_block(block: BLOCK_T, block_tag: Tag) -> None:
 
 def visit_interval_block(block: BLOCK_T, block_tag: Tag) -> None:
     params = block[block_tag]
-    _check_keys({Tag.COUNT, Tag.DURATION, Tag.POWER}, params.keys(), block_tag)
+    _check_keys({Tag.REPEAT, Tag.DURATION, Tag.POWER}, params.keys(), block_tag)

@@ -35,7 +35,7 @@ GRAMMAR = Grammar(RAW_GRAMMAR)
 class Tag(StrEnum):
     AUTHOR = auto()
     CADENCE = auto()
-    COUNT = auto()
+    REPEAT = auto()
     DESCRIPTION = auto()
     DURATION = auto()
     FREE = auto()

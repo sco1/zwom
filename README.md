@@ -80,13 +80,13 @@ Following the `META` block are your workout blocks:
 
 Workout blocks can contain the following comma-separated parameters:
 
-| Keyword             | Description         | Accepted Inputs             | Optional?                |
-|---------------------|---------------------|-----------------------------|--------------------------|
-| `DURATION`          | Block duration      | `MM:SS`<sup>1</sup>         | No                       |
-| `CADENCE`           | Target cadence      | `int`<sup>1</sup>           | Yes                      |
-| `COUNT`             | Number of intervals | `int`                       | Only valid for intervals |
-| `POWER`             | Target power        | `int` or `int%`<sup>1</sup> | Mostly no<sup>2</sup>    |
-| `@`                 | Display a message   | `@ MM:SS str`<sup>3</sup>   | Yes                      |
+| Keyword    | Description         | Accepted Inputs             | Optional?                |
+|------------|---------------------|-----------------------------|--------------------------|
+| `DURATION` | Block duration      | `MM:SS`<sup>1</sup>         | No                       |
+| `CADENCE`  | Target cadence      | `int`<sup>1</sup>           | Yes                      |
+| `REPEAT`   | Number of intervals | `int`                       | Only valid for intervals |
+| `POWER`    | Target power        | `int` or `int%`<sup>1</sup> | Mostly no<sup>2</sup>    |
+| `@`        | Display a message   | `@ MM:SS str`<sup>3</sup>   | Yes                      |
 
 1. For Interval & Ramp segments, the range syntax can be used to set values for the work/rest segments (e.g. `65% -> 120%`).
 2. Power is ignored for Free segments.
@@ -106,7 +106,7 @@ META {
 }
 FREE {DURATION 10:00}
 INTERVALS {
-    COUNT 3,
+    REPEAT 3,
     DURATION 1:00 -> 0:30,
     POWER 55% -> 78%,
     CADENCE 85 -> 110,
