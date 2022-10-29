@@ -34,10 +34,11 @@ value     = tag ws (string / range / rangeval)
 
 message   = "@" ws duration ws string
 range     = rangeval ws "->" ws rangeval
-rangeval  = (duration / numeric)
+rangeval  = (duration / numeric / zone)
 
 duration  = number ":" number
 percent   = number "%"
+zone      = ("Z" number) / "SS"
 numeric   = (percent / number)
 elws      = (ws / emptyline)
 
@@ -89,17 +90,18 @@ When writing your `*.zwom` file, these 3 blocks can be used interchangably, and 
 ### Workout Block Metadata
 Workout blocks can contain the following comma-separated parameters:
 
-| Keyword    | Description         | Accepted Inputs             | Optional?                |
-|------------|---------------------|-----------------------------|--------------------------|
-| `DURATION` | Block duration      | `MM:SS`<sup>1</sup>         | No                       |
-| `CADENCE`  | Target cadence      | `int`<sup>1</sup>           | Yes                      |
-| `REPEAT`   | Number of intervals | `int`                       | Only valid for intervals |
-| `POWER`    | Target power        | `int` or `int%`<sup>1</sup> | Mostly no<sup>2</sup>    |
-| `@`        | Display a message   | `@ MM:SS str`<sup>3</sup>   | Yes                      |
+| Keyword    | Description         | Accepted Inputs                                    | Optional?                |
+|------------|---------------------|----------------------------------------------------|--------------------------|
+| `DURATION` | Block duration      | `MM:SS`<sup>1</sup>                                | No                       |
+| `CADENCE`  | Target cadence      | `int`<sup>1</sup>                                  | Yes                      |
+| `REPEAT`   | Number of intervals | `int`                                              | Only valid for intervals |
+| `POWER`    | Target power        | `int`, `int%`, Zone<sup>1</sup>, Range<sup>2</sup> | Mostly no<sup>3</sup>    |
+| `@`        | Display a message   | `@ MM:SS str`<sup>4</sup>                          | Yes                      |
 
-1. For Interval & Ramp segments, the range syntax can be used to set values for the `<work> -> <rest>` segments (e.g. `65% -> 120%`).
-2. Power is ignored for Free segments.
-3. Message timestamps are relative to their containing block.
+1. Zones may be specified as `Z1-7` or `SS`
+2. For Interval & Ramp segments, the range syntax can be used to set values for the `<work> -> <rest>` segments (e.g. `65% -> 120%` or `Z2 -> Z6`).
+3. Power is ignored for Free segments.
+4. Message timestamps are relative to their containing block.
 
 
 ### Sample Workout

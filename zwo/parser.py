@@ -4,7 +4,7 @@ import datetime as dt
 import typing as t
 from collections import deque
 from dataclasses import dataclass
-from enum import StrEnum, auto
+from enum import Enum, StrEnum, auto
 
 from parsimonious.grammar import Grammar
 from parsimonious.nodes import Node, NodeVisitor
@@ -16,10 +16,11 @@ RAW_GRAMMAR = r"""
 
     message   = "@" ws duration ws string
     range     = rangeval ws "->" ws rangeval
-    rangeval  = (duration / numeric)
+    rangeval  = (duration / numeric / zone)
 
     duration  = number ":" number
     percent   = number "%"
+    zone      = ("Z" number) / "SS"
     numeric   = (percent / number)
     elws      = (ws / emptyline)
 
@@ -62,6 +63,17 @@ class Percentage:
         return cls(value=int(node.text.rstrip("%")))
 
 
+class PowerZone(Enum):
+    Z1 = Percentage(value=50)
+    Z2 = Percentage(value=65)
+    Z3 = Percentage(value=81)
+    SS = Percentage(value=90)
+    Z4 = Percentage(value=95)
+    Z5 = Percentage(value=109)
+    Z6 = Percentage(value=125)
+    Z7 = Percentage(value=150)
+
+
 @dataclass(frozen=True, slots=True)
 class Duration:
     value: dt.timedelta
@@ -72,7 +84,7 @@ class Duration:
         return cls(value=dt.timedelta(minutes=minutes, seconds=seconds))
 
 
-RANGE_T = Percentage | Duration | int
+RANGE_T = Percentage | Duration | PowerZone | int
 
 
 @dataclass(frozen=True, slots=True)
@@ -187,6 +199,9 @@ class ZWOVisitor(NodeVisitor):
 
     def visit_percent(self, node: Node, visited_children: list[Node]) -> Percentage:
         return Percentage.from_node(node)
+
+    def visit_zone(self, node: Node, visited_children: list[Node]) -> PowerZone:
+        return PowerZone[node.text]
 
     def generic_visit(self, node: Node, visited_children: list[Node]) -> list[Node] | Node:
         return visited_children or node

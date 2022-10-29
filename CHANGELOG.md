@@ -5,8 +5,10 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 ### Added
 * Add ZWOM file validation
 * Add `COOLDOWN` tag as a `RAMP` alias
+* #3 Add Power Zone specification as an acceptable power syntax
 
 ### Changed
+* Minimum Python version is now 3.11
 * Rename the `COUNT` keyword to `REPEAT` to align with Zwift's terminology
 * Unify on `*.zwom` (ZWOM) verbiage for the minilang to deconflict from Zwift's workout format (`*.zwo`)
 
