@@ -92,14 +92,14 @@ Workout blocks can contain the following comma-separated parameters:
 
 | Keyword    | Description         | Accepted Inputs                                    | Optional?                |
 |------------|---------------------|----------------------------------------------------|--------------------------|
-| `DURATION` | Block duration      | `MM:SS`<sup>1</sup>                                | No                       |
-| `CADENCE`  | Target cadence      | `int`<sup>1</sup>                                  | Yes                      |
+| `DURATION` | Block duration      | `MM:SS`, Range<sup>1</sup>                         | No                       |
+| `CADENCE`  | Target cadence      | `int`, Range<sup>1</sup>                           | Yes                      |
 | `REPEAT`   | Number of intervals | `int`                                              | Only valid for intervals |
-| `POWER`    | Target power        | `int`, `int%`, Zone<sup>1</sup>, Range<sup>2</sup> | Mostly no<sup>3</sup>    |
+| `POWER`    | Target power        | `int`, `int%`, Zone<sup>2</sup>, Range<sup>1</sup> | Mostly no<sup>3</sup>    |
 | `@`        | Display a message   | `@ MM:SS str`<sup>4</sup>                          | Yes                      |
 
-1. Zones may be specified as `Z1-7` or `SS`
-2. For Interval & Ramp segments, the range syntax can be used to set values for the `<work> -> <rest>` segments (e.g. `65% -> 120%` or `Z2 -> Z6`).
+1. For Interval & Ramp segments, the range syntax can be used to set values for the `<work> -> <rest>` segments (e.g. `65% -> 120%` or `Z2 -> Z6`).
+2. Zones may be specified as `Z1-7` or `SS`
 3. Power is ignored for Free segments.
 4. Message timestamps are relative to their containing block.
 

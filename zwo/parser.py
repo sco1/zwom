@@ -58,6 +58,9 @@ class Tag(StrEnum):
 class Percentage:
     value: int
 
+    def __str__(self) -> str:
+        return str(self.value / 100)
+
     @classmethod
     def from_node(cls, node: Node) -> Percentage:
         return cls(value=int(node.text.rstrip("%")))
@@ -73,10 +76,16 @@ class PowerZone(Enum):
     Z6 = Percentage(value=125)
     Z7 = Percentage(value=150)
 
+    def __str__(self) -> str:
+        return str(self.value)
+
 
 @dataclass(frozen=True, slots=True)
 class Duration:
     value: dt.timedelta
+
+    def __str__(self) -> str:
+        return str(int(self.value.total_seconds()))
 
     @classmethod
     def from_node(cls, node: Node) -> Duration:
@@ -109,7 +118,7 @@ class Range:
 
 @dataclass(frozen=True, slots=True)
 class Message:
-    timestamp: dt.datetime
+    timestamp: Duration
     message: str
 
     @classmethod
