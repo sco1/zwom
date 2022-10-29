@@ -13,14 +13,13 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Typing :: Typed",
 ]
 packages = [{include="zwo"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 parsimonious = "^0.10"
 rich = "^12.6"
 typer = {extras = ["rich"], version = "^0.6"}

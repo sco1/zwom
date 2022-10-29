@@ -117,9 +117,9 @@ def deep_flatten(in_iter: list, key_type: type[T]) -> t.Generator[T, None, None]
             iterators.pop()
 
 
-VAL_T = int | str | Percentage | Duration | Range
+VAL_T = int | str | Percentage | Duration | Range | list[Message] | None
 PARAM_T = dict[Tag, VAL_T]
-BLOCK_T = dict[Tag, PARAM_T | list[Message] | None]
+BLOCK_T = dict[Tag, PARAM_T]
 
 
 class ZWOVisitor(NodeVisitor):
@@ -138,13 +138,21 @@ class ZWOVisitor(NodeVisitor):
         block_messages = list(deep_flatten(visited_children[-2], key_type=Message))
 
         block_params: BLOCK_T = {tag: {key: val for param in params for key, val in param.items()}}
-        block_params[Tag.MESSAGES] = block_messages if block_messages else None
+        block_params[Tag.MESSAGES] = block_messages if block_messages else None  # type: ignore[assignment]  # noqa: E501
 
         return block_params
 
     def visit_value(self, node: Node, visited_children: list[Node]) -> PARAM_T:
         tag, _, value, *_ = visited_children
-        return {tag: value[0]}  # With the current grammar there shouldn't be any value nesting
+
+        # I'm not sure how to best keep the numeric values from nesting, I might be misunderstanding
+        # how the parser is working or have something written poorly in the grammar but for now this
+        # hack functions
+        val = value[0]
+        if isinstance(val, list):
+            val = val[0]
+
+        return {tag: val}
 
     def visit_string(self, node: Node, visited_children: list[Node]) -> str:
         return node.text.strip('"')  # type: ignore[no-any-return]
@@ -172,3 +180,11 @@ class ZWOVisitor(NodeVisitor):
 
     def generic_visit(self, node: Node, visited_children: list[Node]) -> list[Node] | Node:
         return visited_children or node
+
+
+def parse_src(src: str) -> list[BLOCK_T]:
+    """Parse the provided source into a list of raw workout blocks."""
+    tree = ZWOVisitor.grammar.parse(src)
+    visitor = ZWOVisitor()
+    parsed: list[BLOCK_T] = visitor.visit(tree)
+    return parsed

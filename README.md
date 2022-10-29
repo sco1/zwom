@@ -16,7 +16,7 @@ $ pip install zwolang
 ```
 
 ## The ZWO File Specification
-The primary purpose of this package is to provide a simple, human-readable format for constructing Zwift workouts that can be used to generate the actual workout XML.
+The primary purpose of this package is to provide a simple, human-readable format for constructing Zwift workouts that can be used to generate the actual workout XML. Let's call it a `*.zwom` file, or ZWOM.
 
 ZWO files are parsed using a [Parsimonious](https://github.com/erikrose/parsimonious) grammar, as specified below:
 <!-- [[[cog
@@ -54,27 +54,29 @@ Like Zwift's built-in workout builder, the ZWO minilang is a block-based system.
 
 Each ZWO file must begin with a `META` block containing comma-separated parameters:
 
-| Keyword       | Description             | Accepted Inputs                  | Optional? |
-|---------------|-------------------------|----------------------------------|-----------|
-| `NAME`        | Displayed workout name  | `str`                            | No        |
-| `AUTHOR`      | Workout author          | `str`                            | No        |
-| `DESCRIPTION` | Workout description     | `str`                            | No        |
-| `TAGS`        | Workout tags            | String of comma separated values | Yes       |
-| `FTP`         | Rider's FTP<sup>1</sup> | `int`                            | Yes       |
+| Keyword       | Description             | Accepted Inputs                | Optional?         |
+|---------------|-------------------------|--------------------------------|-------------------|
+| `NAME`        | Displayed workout name  | `str`                          | No                |
+| `AUTHOR`      | Workout author          | `str`                          | No                |
+| `DESCRIPTION` | Workout description     | `str`<sup>1</sup>              | No                |
+| `FTP`         | Rider's FTP             | `int`                          | Maybe<sup>2</sup> |
+| `TAGS`        | Workout tags            | String of hashtags<sup>3</sup> | Yes               |
 
-1. If specified, the rider's FTP is not used by Zwift directly. It is instead used to optionally normalize the workout's target power percentages to watts
+1. Multiline strings are supported.
+2. Zwift's workouts are generated using FTP percentages rather than absolute watts, so your FTP is required if you want to use absolute watts in your ZWOM.
+3. Tags are capped at x total characters, including hashtags. Zwift also provides 4 built-in tags (`#RECOVERY`, `#INTERVALS`, `#FTP`, and `#TT`) that may also be added and do not count against this total.
 
 Following the `META` block are your workout blocks:
 
-| Keyword       | Description        |
-|---------------|--------------------|
-| `FREE`        | Free ride          |
-| `INTERVALS`   | Intervals          |
-| `RAMP`        | Ramp               |
-| `SEGMENT`     | Steady segment     |
-| `WARMUP`      | Warmup<sup>1</sup> |
+| Keyword            | Description        |
+|--------------------|--------------------|
+| `FREE`             | Free ride          |
+| `INTERVALS`        | Intervals          |
+| `RAMP`<sup>1</sup> | Ramp               |
+| `SEGMENT`          | Steady segment     |
+| `WARMUP`           | Warmup             |
 
-1. I believe Zwift considers these the same as Ramp intervals, so the ZWO package does the same
+1. Zwift doesn't have an explicit Ramp block, so this is just an alias for the Warmup block (which is a ramp).
 
 Workout blocks can contain the following comma-separated parameters:
 
@@ -86,18 +88,20 @@ Workout blocks can contain the following comma-separated parameters:
 | `POWER`             | Target power        | `int` or `int%`<sup>1</sup> | Mostly no<sup>2</sup>    |
 | `@`                 | Display a message   | `@ MM:SS str`<sup>3</sup>   | Yes                      |
 
-1. For Interval & Ramp segments, the range syntax can be used to set values for the work/rest segments (e.g. `65% -> 120%`)
-2. Power is optional for Free segments
-3. Message timestamps are relative to their containing block
+1. For Interval & Ramp segments, the range syntax can be used to set values for the work/rest segments (e.g. `65% -> 120%`).
+2. Power is ignored for Free segments.
+3. Message timestamps are relative to their containing block.
 
 
 ### Sample Workout
 ```
 META {
-    NAME "My Workout",
-    AUTHOR "Some Author",
-    DESCRIPTION "Here's a description!",
-    TAGS "super, sweet, workout",
+    NAME "Sample Workout",
+    AUTHOR "sco1",
+    DESCRIPTION "Here's a description!
+
+    Descriptions may be on more than one line too!",
+    TAGS "#RECOVERY #super #sweet #workout",
     FTP 270,
 }
 FREE {DURATION 10:00}
@@ -116,3 +120,5 @@ RAMP {
 }
 FREE {DURATION 10:00}
 ```
+
+![Workout Screenshot](https://raw.githubusercontent.com/sco1/sco1.github.io/master/zwo/sample_zwift_workout.png)
