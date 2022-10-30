@@ -79,16 +79,25 @@ class Workout:
         for idx, block in enumerate(blocks, start=1):
             # Blocks only have one key, so we can dispatch serializers using the first key
             block_tag = next(iter(block))
+            params = block[block_tag]
             match block_tag:
                 case Tag.FREE:
-                    block_element = self.serialize_free(doc, block, block_tag)
+                    block_element = self._build_simple_block(
+                        doc, BLOCK_MAPPING[block_tag], params, add_flat_road=True
+                    )
                 case Tag.SEGMENT:
-                    block_element = self.serialize_segment(doc, block, block_tag)
+                    block_element = self._build_simple_block(
+                        doc, BLOCK_MAPPING[block_tag], params, add_power=True, add_pace=True
+                    )
                 case Tag.RAMP | Tag.WARMUP | Tag.COOLDOWN:
                     zwift_key = _classify_ramp_type(idx, n_blocks)
-                    block_element = self.serialize_ramp(doc, block, block_tag, zwift_key)
+                    block_element = self._build_simple_block(doc, zwift_key, params, add_pace=True)
+                    block_element = self.serialize_ramp(block_element, params)
                 case Tag.INTERVALS:
-                    block_element = self.serialize_interval(doc, block, block_tag)
+                    block_element = self._build_simple_block(
+                        doc, BLOCK_MAPPING[block_tag], params, add_duration=False, add_pace=True
+                    )
+                    block_element = self.serialize_interval(block_element, params)
                 case _:
                     ...
 
@@ -99,46 +108,42 @@ class Workout:
 
         return doc
 
-    def serialize_free(
-        self, doc: minidom.Document, block: BLOCK_T, block_tag: Tag
+    def _build_simple_block(
+        self,
+        doc: minidom.Document,
+        zwift_key: str,
+        params: PARAM_T,
+        add_duration: bool = True,
+        add_power: bool = False,
+        add_flat_road: bool = False,
+        add_pace: bool = False,
     ) -> minidom.Element:
-        params = block[block_tag]
-        block_element = doc.createElement(BLOCK_MAPPING[block_tag])
-        block_element.setAttribute("Duration", str(params[Tag.DURATION]))
-        block_element.setAttribute("FlatRoad", "0")
-
-        return block_element
-
-    def serialize_segment(
-        self, doc: minidom.Document, block: BLOCK_T, block_tag: Tag
-    ) -> minidom.Element:
-        params = block[block_tag]
-        block_element = doc.createElement(BLOCK_MAPPING[block_tag])
-        block_element.setAttribute("Duration", str(params[Tag.DURATION]))
-        block_element.setAttribute("Power", self.serialize_power(params[Tag.POWER]))
-        block_element.setAttribute("pace", "0")
-
-        return block_element
-
-    def serialize_ramp(
-        self, doc: minidom.Document, block: BLOCK_T, block_tag: Tag, zwift_key: str
-    ) -> minidom.Element:
-        params = block[block_tag]
         block_element = doc.createElement(zwift_key)
-        block_element.setAttribute("Duration", str(params[Tag.DURATION]))
 
+        if add_duration:
+            block_element.setAttribute("Duration", str(params[Tag.DURATION]))
+
+        if add_power:
+            block_element.setAttribute("Power", self.serialize_power(params[Tag.POWER]))
+
+        if add_flat_road:
+            block_element.setAttribute("FlatRoad", "0")
+
+        if add_pace:
+            block_element.setAttribute("pace", "0")
+
+        return block_element
+
+    def serialize_ramp(self, block_element: minidom.Element, params: PARAM_T) -> minidom.Element:
         power_range: Range = params[Tag.POWER]
         block_element.setAttribute("PowerLow", self.serialize_power(power_range.left))
         block_element.setAttribute("PowerHigh", self.serialize_power(power_range.right))
-        block_element.setAttribute("pace", "0")
 
         return block_element
 
     def serialize_interval(
-        self, doc: minidom.Document, block: BLOCK_T, block_tag: Tag
+        self, block_element: minidom.Element, params: PARAM_T
     ) -> minidom.Element:
-        params = block[block_tag]
-        block_element = doc.createElement(BLOCK_MAPPING[block_tag])
         block_element.setAttribute("Repeat", str(params[Tag.REPEAT]))
 
         duration_range: Range = params[Tag.DURATION]
@@ -148,7 +153,6 @@ class Workout:
         power_range: Range = params[Tag.POWER]
         block_element.setAttribute("PowerLow", self.serialize_power(power_range.left))
         block_element.setAttribute("PowerHigh", self.serialize_power(power_range.right))
-        block_element.setAttribute("pace", "0")
 
         return block_element
 
