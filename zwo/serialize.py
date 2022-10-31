@@ -4,7 +4,7 @@ from textwrap import dedent
 from xml.dom import minidom
 
 from zwo.interpreter import ZWOMValidator
-from zwo.parser import BLOCK_T, Message, PARAM_T, Percentage, PowerZone, Range, Tag
+from zwo.parser import BLOCK_T, Duration, Message, PARAM_T, Percentage, PowerZone, Range, Tag
 
 STATIC_META_PARAMS = {"sportType": "bike"}
 
@@ -48,13 +48,18 @@ class Workout:
 
             tmp = doc.createElement(tag)
             if tag == Tag.TAGS:
+                if not isinstance(val, str):
+                    raise ValueError("Type narrowing, shouldn't be able to get here")
+
                 for hashtag in val.split():
                     sub_tag = doc.createElement("tag")
                     sub_tag.setAttribute("name", hashtag.lstrip("#"))
                     tmp.appendChild(sub_tag)
             else:
                 if tag == Tag.DESCRIPTION:
-                    # Dedent the description to normalize any ZWOM indentation
+                    if not isinstance(val, str):
+                        raise ValueError("Type narrowing, shouldn't be able to get here")
+
                     val = dedent(val)
 
                 tmp.appendChild(doc.createTextNode(val))
@@ -102,6 +107,9 @@ class Workout:
                     ...
 
             if messages := block.get(Tag.MESSAGES):
+                if not isinstance(messages, list):
+                    raise ValueError("Type narrowing, shouldn't be able to get here")
+
                 block_element = self.serialize_messages(doc, block_element, messages)
 
             workout.appendChild(block_element)
@@ -118,13 +126,17 @@ class Workout:
         add_flat_road: bool = False,
         add_pace: bool = False,
     ) -> minidom.Element:
-        block_element = doc.createElement(zwift_key)
+        block_element: minidom.Element = doc.createElement(zwift_key)
 
         if add_duration:
             block_element.setAttribute("Duration", str(params[Tag.DURATION]))
 
         if add_power:
-            block_element.setAttribute("Power", self.serialize_power(params[Tag.POWER]))
+            power = params[Tag.POWER]
+            if not isinstance(power, (int, Percentage, PowerZone)):
+                raise ValueError("Type narrowing, shouldn't be able to get here")
+
+            block_element.setAttribute("Power", self.serialize_power(power))
 
         if add_flat_road:
             block_element.setAttribute("FlatRoad", "0")
@@ -135,7 +147,13 @@ class Workout:
         return block_element
 
     def serialize_ramp(self, block_element: minidom.Element, params: PARAM_T) -> minidom.Element:
-        power_range: Range = params[Tag.POWER]
+        power_range = params[Tag.POWER]
+        if not isinstance(power_range, Range):
+            raise ValueError("Type narrowing, shouldn't be able to get here")
+
+        if isinstance(power_range.left, Duration) or isinstance(power_range.right, Duration):
+            raise ValueError("Type narrowing, shouldn't be able to get here")
+
         block_element.setAttribute("PowerLow", self.serialize_power(power_range.left))
         block_element.setAttribute("PowerHigh", self.serialize_power(power_range.right))
 
@@ -146,11 +164,20 @@ class Workout:
     ) -> minidom.Element:
         block_element.setAttribute("Repeat", str(params[Tag.REPEAT]))
 
-        duration_range: Range = params[Tag.DURATION]
+        duration_range = params[Tag.DURATION]
+        if not isinstance(duration_range, Range):
+            raise ValueError("Type narrowing, shouldn't be able to get here")
+
         block_element.setAttribute("OnDuration", str(duration_range.left))
         block_element.setAttribute("OffDuration", str(duration_range.right))
 
-        power_range: Range = params[Tag.POWER]
+        power_range = params[Tag.POWER]
+        if not isinstance(power_range, Range):
+            raise ValueError("Type narrowing, shouldn't be able to get here")
+
+        if isinstance(power_range.left, Duration) or isinstance(power_range.right, Duration):
+            raise ValueError("Type narrowing, shouldn't be able to get here")
+
         block_element.setAttribute("PowerLow", self.serialize_power(power_range.left))
         block_element.setAttribute("PowerHigh", self.serialize_power(power_range.right))
 
@@ -170,6 +197,9 @@ class Workout:
 
     def serialize_power(self, power: int | Percentage | PowerZone) -> str:
         if isinstance(power, int):
+            if self._ftp is None:
+                raise ValueError("Type narrowing, shouldn't be able to get here")
+
             return str(power / self._ftp)
         else:
             return str(power)
