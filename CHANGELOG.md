@@ -6,6 +6,8 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 * Add ZWOM file validation
 * Add `COOLDOWN` tag as a `RAMP` alias
 * #3 Add Power Zone specification as an acceptable power syntax
+* Add initial XML serialization
+* Add initial CLI command (`zwom single`)
 
 ### Changed
 * Minimum Python version is now 3.11

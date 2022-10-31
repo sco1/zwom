@@ -15,10 +15,33 @@ Install from PyPi with your favorite `pip` invocation:
 $ pip install zwolang
 ```
 
-## The ZWO File Specification
+You can confirm proper installation via the `zwom` CLI:
+<!-- [[[cog
+import cog
+from subprocess import PIPE, run
+out = run(["zwom", "--help"], stdout=PIPE, encoding="ascii")
+cog.out(
+    f"```\n$ zwom --help\n{out.stdout.rstrip()}\n```"
+)
+]]] -->
+```
+$ zwom --help
+                                                                               
+ Usage: zwom [OPTIONS] COMMAND [ARGS]...                                       
+                                                                               
++- Options -------------------------------------------------------------------+
+| --help          Show this message and exit.                                 |
++-----------------------------------------------------------------------------+
++- Commands ------------------------------------------------------------------+
+| single                                                                      |
++-----------------------------------------------------------------------------+
+```
+<!-- [[[end]]] -->
+
+## The ZWOM File Specification
 The primary purpose of this package is to provide a simple, human-readable format for constructing Zwift workouts that can be used to generate the actual workout XML. Let's call it a `*.zwom` file, or ZWOM.
 
-ZWO files are parsed using a [Parsimonious](https://github.com/erikrose/parsimonious) grammar, as specified below:
+ZWOM files are parsed using a [Parsimonious](https://github.com/erikrose/parsimonious) grammar, as specified below:
 <!-- [[[cog
 from textwrap import dedent
 import cog

@@ -24,3 +24,6 @@ per-file-ignores =
     zwo/parser.py: D101 D102,
     zwo/interpreter.py: D101 D102,
     zwo/serialize.py: D101 D102,
+extend-immutable-calls =
+    # Typer CLI
+    typer.Option, typer.Argument,

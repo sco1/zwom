@@ -18,10 +18,18 @@ classifiers = [
 ]
 packages = [{include="zwo"}]
 
+include = [
+    {path = "./CHANGELOG.md", format = "sdist"}
+]
+
+[tool.poetry.scripts]
+zwom = "zwo.cli:zwom_cli"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 parsimonious = "^0.10"
 rich = "^12.6"
+sco1-misc = "^0.1"
 typer = {extras = ["rich"], version = "^0.6"}
 
 [tool.poetry.dev-dependencies]

@@ -157,14 +157,14 @@ class ZWOVisitor(NodeVisitor):
 
     grammar = GRAMMAR
 
+    # Indices of visited_children are determined by the grammar specification
     def visit_workout(self, node: Node, visited_children: list[Node]) -> list[BLOCK_T]:
-        blocks, *_ = visited_children
+        blocks, _ = visited_children
 
         return [block[0] for block in blocks]
 
     def visit_block(self, node: Node, visited_children: list[Node]) -> BLOCK_T:
         tag = visited_children[0]
-        # Can this index be relied on?
         params = list(deep_flatten(visited_children[-2], key_type=dict))
         block_messages = list(deep_flatten(visited_children[-2], key_type=Message))
 
@@ -174,7 +174,7 @@ class ZWOVisitor(NodeVisitor):
         return block_params
 
     def visit_value(self, node: Node, visited_children: list[Node]) -> PARAM_T:
-        tag, _, value, *_ = visited_children
+        tag, _, value = visited_children
 
         # I'm not sure how to best keep the numeric values from nesting, I might be misunderstanding
         # how the parser is working or have something written poorly in the grammar but for now this
