@@ -1,10 +1,21 @@
 from dataclasses import dataclass
+from io import StringIO
 from pathlib import Path
 from textwrap import dedent
 from xml.dom import minidom
 
 from zwo.interpreter import ZWOMValidator
-from zwo.parser import BLOCK_T, Duration, Message, PARAM_T, Percentage, PowerZone, Range, Tag
+from zwo.parser import (
+    BLOCK_T,
+    Duration,
+    Message,
+    PARAM_T,
+    Percentage,
+    PowerZone,
+    Range,
+    Tag,
+    parse_src,
+)
 
 STATIC_META_PARAMS = {"sportType": "bike"}
 
@@ -20,13 +31,8 @@ BLOCK_MAPPING = {
 
 @dataclass(slots=True)
 class Workout:
-    raw_blocks: list[BLOCK_T]
-
-    _ftp: int | None = None
-
-    def __post_init__(self) -> None:
-        val = ZWOMValidator(self.raw_blocks)
-        self._ftp = val._ftp
+    blocks: list[BLOCK_T]
+    ftp: int | None = None
 
     def to_zwo(self, out_filepath: Path) -> None:
         doc = minidom.Document()
@@ -34,10 +40,16 @@ class Workout:
         doc.appendChild(root)
 
         # If we're here then we've validate that the meta tag is the first block
-        doc = self.serialize_meta(doc, root, self.raw_blocks[0][Tag.META])
-        doc = self.serialize_workout_blocks(doc, root, self.raw_blocks[1:])
+        doc = self.serialize_meta(doc, root, self.blocks[0][Tag.META])
+        doc = self.serialize_workout_blocks(doc, root, self.blocks[1:])
 
-        print(doc.toprettyxml())
+        # Drop encoding line before writing the XML, Zwift doesn't use it
+        buff = StringIO()
+        buff.write(doc.toprettyxml(indent=" " * 4))
+        buff.seek(0)
+        _ = buff.readline()
+
+        out_filepath.write_text(buff.read())
 
     def serialize_meta(
         self, doc: minidom.Document, root: minidom.Element, meta_block: PARAM_T
@@ -197,10 +209,10 @@ class Workout:
 
     def serialize_power(self, power: int | Percentage | PowerZone) -> str:
         if isinstance(power, int):
-            if self._ftp is None:
+            if self.ftp is None:
                 raise ValueError("Type narrowing, shouldn't be able to get here")
 
-            return str(power / self._ftp)
+            return str(power / self.ftp)
         else:
             return str(power)
 
@@ -223,3 +235,22 @@ def _classify_ramp_type(block_idx: int, n_blocks: int) -> str:
         return BLOCK_MAPPING[Tag.COOLDOWN]
     else:
         return BLOCK_MAPPING[Tag.RAMP]
+
+
+def convert_zwom(zwom_filepath: Path, out_filepath: Path | None = None) -> None:
+    """
+    Validate and convert the provided ZWOM file to ZWO.
+
+    If no `out_filepath` is provided, the resulting ZWO file is written to the same directory as the
+    input ZWOM file.
+
+    NOTE: Any existing ZWO files sharing the specified name will be overwritten.
+    """
+    if out_filepath is None:
+        out_filepath = zwom_filepath.with_suffix(".zwo")
+
+    blocks = parse_src(zwom_filepath.read_text())
+    val = ZWOMValidator(blocks)
+    wo = Workout(blocks, val._ftp)
+
+    wo.to_zwo(out_filepath)
