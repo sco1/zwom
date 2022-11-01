@@ -33,10 +33,28 @@ def single(
     convert_zwom(zwom_file, out_file)
 
 
-# Until more commands are added, add callback to keep from running on a bare CLI invocation
-@zwom_cli.callback()
-def callback() -> None:  # noqa: D103
-    pass
+@zwom_cli.command()
+def batch(
+    top_dir: Path = typer.Option(None, exists=True, dir_okay=True),
+    recursive: bool = typer.Option(False),
+) -> None:
+    """
+    Discover and convert all `*.zwom` files in the given directory.
+
+    NOTE: Any existing `*.zwo` file with the same name will be overwritten.
+    """
+    if top_dir is None:
+        try:
+            top_dir = prompts.prompt_for_dir(title="Select ZWOM directory")
+        except ValueError:
+            raise click.ClickException("No directory selected, aborting.")
+
+    pattern = "*.zwom"
+    if recursive:
+        pattern = f"**/{pattern}"
+
+    for file in top_dir.glob(pattern):
+        convert_zwom(file)
 
 
 if __name__ == "__main__":  # pragma: no cover

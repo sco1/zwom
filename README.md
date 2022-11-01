@@ -33,7 +33,8 @@ $ zwom --help
 | --help          Show this message and exit.                                 |
 +-----------------------------------------------------------------------------+
 +- Commands ------------------------------------------------------------------+
-| single                                                                      |
+| batch    Discover and convert all `*.zwom` files in the given directory.    |
+| single   Convert the specified `*.zwom` file to Zwift's `*.zwo`.            |
 +-----------------------------------------------------------------------------+
 ```
 <!-- [[[end]]] -->
