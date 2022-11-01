@@ -1,10 +1,10 @@
 # ZWO Minilang
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/zwolang)](https://pypi.org/project/zwolang/)
 [![PyPI](https://img.shields.io/pypi/v/zwolang)](https://pypi.org/project/zwolang/)
-[![PyPI - License](https://img.shields.io/pypi/l/zwolang?color=magenta)](https://github.com/sco1/zwolang/blob/master/LICENSE)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sco1/zwolang/main.svg)](https://results.pre-commit.ci/latest/github/sco1/zwolang/main)
+[![PyPI - License](https://img.shields.io/pypi/l/zwolang?color=magenta)](https://github.com/sco1/zwom/blob/master/LICENSE)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sco1/zwom/main.svg)](https://results.pre-commit.ci/latest/github/sco1/zwom/main)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
-[![Open in Visual Studio Code](https://img.shields.io/badge/Open%20in-VSCode.dev-blue)](https://vscode.dev/github.com/sco1/zwolang)
+[![Open in Visual Studio Code](https://img.shields.io/badge/Open%20in-VSCode.dev-blue)](https://vscode.dev/github.com/sco1/zwom)
 
 Python toolkit for the ZWO minilang.
 
@@ -87,9 +87,9 @@ Each ZWO file must begin with a `META` block containing comma-separated paramete
 | `FTP`         | Rider's FTP             | `int`                          | Maybe<sup>2</sup> |
 | `TAGS`        | Workout tags            | String of hashtags<sup>3</sup> | Yes               |
 
-1. Multiline strings are supported.
-2. Zwift's workouts are generated using FTP percentages rather than absolute watts, so your FTP is required if you want to use absolute watts in your ZWOM.
-3. Tags are capped at x total characters, including hashtags. Zwift also provides 4 built-in tags (`#RECOVERY`, `#INTERVALS`, `#FTP`, and `#TT`) that may also be added and do not count against this total.
+1. Multiline strings are supported
+2. Zwift's workouts are generated using FTP percentages rather than absolute watts, so your FTP is required if you want to use absolute watts in your ZWOM
+3. Tags are capped at 31 total characters, including spaces and hashtags. Zwift also provides 4 built-in tags (`#RECOVERY`, `#INTERVALS`, `#FTP`, and `#TT`) that may also be added and do not count against this total.
 
 ### Workout Blocks
 Following the `META` block are your workout blocks:
@@ -116,15 +116,16 @@ Workout blocks can contain the following comma-separated parameters:
 | Keyword    | Description         | Accepted Inputs                                    | Optional?                |
 |------------|---------------------|----------------------------------------------------|--------------------------|
 | `DURATION` | Block duration      | `MM:SS`, Range<sup>1</sup>                         | No                       |
-| `CADENCE`  | Target cadence      | `int`, Range<sup>1</sup>                           | Yes                      |
+| `CADENCE`  | Target cadence      | `int`, Range<sup>1,2</sup>                         | Yes                      |
 | `REPEAT`   | Number of intervals | `int`                                              | Only valid for intervals |
-| `POWER`    | Target power        | `int`, `int%`, Zone<sup>2</sup>, Range<sup>1</sup> | Mostly no<sup>3</sup>    |
-| `@`        | Display a message   | `@ MM:SS str`<sup>4</sup>                          | Yes                      |
+| `POWER`    | Target power        | `int`, `int%`, Zone<sup>3</sup>, Range<sup>1</sup> | Mostly no<sup>4</sup>    |
+| `@`        | Display a message   | `@ MM:SS str`<sup>5</sup>                          | Yes                      |
 
-1. For Interval & Ramp segments, the range syntax can be used to set values for the `<work> -> <rest>` segments (e.g. `65% -> 120%` or `Z2 -> Z6`).
-2. Zones may be specified as `Z1-7` or `SS`
-3. Power is ignored for Free segments.
-4. Message timestamps are relative to their containing block.
+1. For Interval & Ramp segments, the range syntax can be used to set values for the `<left> -> <right>` segments (e.g. `65% -> 120%` or `Z2 -> Z6`)
+2. Cadence ranges are only valid for Interval segments
+3. Zones may be specified as `Z1-7` or `SS`
+4. Power is ignored for Free segments
+5. Message timestamps are relative to their containing block
 
 
 ### Sample Workout

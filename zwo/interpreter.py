@@ -48,6 +48,8 @@ class ZWOMValidator:
                 match param:
                     case Tag.POWER:
                         self.visit_power(val)
+                    case Tag.CADENCE:
+                        self.visit_cadence(val, block_tag)
                     case _:
                         continue
 
@@ -99,3 +101,11 @@ class ZWOMValidator:
                     raise ZWOMValidationError(
                         "An FTP must be specified in the META block to use absolute watts."
                     )
+
+    def visit_cadence(self, cadence_spec: VAL_T, block_tag: Tag) -> None:
+        # Cadence range is only valid for use in an interval block
+        if isinstance(cadence_spec, Range) and block_tag != Tag.INTERVALS:
+            raise ZWOMValidationError("Cadence ranges are only valid for Interval blocks.")
+
+        if block_tag == Tag.INTERVALS and not isinstance(cadence_spec, Range):
+            raise ZWOMValidationError("Interval blocks must have a cadence range.")

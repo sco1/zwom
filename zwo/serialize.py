@@ -112,7 +112,12 @@ class Workout:
                     block_element = self.serialize_ramp(block_element, params)
                 case Tag.INTERVALS:
                     block_element = self._build_simple_block(
-                        doc, BLOCK_MAPPING[block_tag], params, add_duration=False, add_pace=True
+                        doc,
+                        BLOCK_MAPPING[block_tag],
+                        params,
+                        add_duration=False,
+                        add_cadence=False,  # Unlike the other blocks, intervals have a range
+                        add_pace=True,
                     )
                     block_element = self.serialize_interval(block_element, params)
                 case _:
@@ -134,6 +139,7 @@ class Workout:
         zwift_key: str,
         params: PARAM_T,
         add_duration: bool = True,
+        add_cadence: bool = True,
         add_power: bool = False,
         add_flat_road: bool = False,
         add_pace: bool = False,
@@ -142,6 +148,9 @@ class Workout:
 
         if add_duration:
             block_element.setAttribute("Duration", str(params[Tag.DURATION]))
+
+        if add_cadence and (cadence := params.get(Tag.CADENCE)):
+            block_element.setAttribute("Cadence", str(cadence))
 
         if add_power:
             power = params[Tag.POWER]
@@ -190,8 +199,16 @@ class Workout:
         if isinstance(power_range.left, Duration) or isinstance(power_range.right, Duration):
             raise ValueError("Type narrowing, shouldn't be able to get here")
 
-        block_element.setAttribute("PowerLow", self.serialize_power(power_range.left))
-        block_element.setAttribute("PowerHigh", self.serialize_power(power_range.right))
+        block_element.setAttribute("OnPower", self.serialize_power(power_range.left))
+        block_element.setAttribute("OffPower", self.serialize_power(power_range.right))
+
+        cadence_range = params.get(Tag.CADENCE)
+        if not isinstance(cadence_range, Range):
+            raise ValueError("Type narrowing, shouldn't be able to get here")
+
+        if cadence_range:
+            block_element.setAttribute("Cadence", str(cadence_range.left))
+            block_element.setAttribute("CadenceResting", str(cadence_range.right))
 
         return block_element
 
