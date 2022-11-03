@@ -1,18 +1,20 @@
 from collections import abc
 from dataclasses import dataclass
 
-from zwo.parser import BLOCK_T, Range, Tag, VAL_T
+from zwo.parser import BLOCK_T, PARAM_T, Range, Tag, VAL_T
 
 
 class ZWOMValidationError(BaseException):  # noqa: D101
     ...
 
 
-def _check_keys(required: set[Tag], check_tags: abc.KeysView[Tag], block_tag: Tag) -> None:
+def _check_keys(required: set[Tag], check_tags: abc.KeysView[Tag], block_tag: Tag) -> bool:
     missing = required - check_tags
     if missing:
         pretty_tags = ", ".join(tag.upper() for tag in missing)
         raise ZWOMValidationError(f"{block_tag.upper()} block missing required keys: {pretty_tags}")
+
+    return True
 
 
 @dataclass(slots=True)
@@ -28,23 +30,24 @@ class ZWOMValidator:
         if Tag.META not in self.raw_blocks[0]:
             raise ZWOMValidationError("ZWOM file must begin with a META block")
 
-        self.visit_meta_block(self.raw_blocks[0], Tag.META)
+        self.visit_meta_block(self.raw_blocks[0][Tag.META], Tag.META)
 
         for block in self.raw_blocks[1:]:
             # Blocks only have one key, so we can dispatch validators using the first key
             block_tag = next(iter(block))
+            params = block[block_tag]
             match block_tag:
                 case Tag.FREE | Tag.SEGMENT:
-                    self.visit_segment_block(block, block_tag)
+                    self.visit_segment_block(params, block_tag)
                 case Tag.RAMP | Tag.WARMUP | Tag.COOLDOWN:
-                    self.visit_ramp_block(block, block_tag)
+                    self.visit_ramp_block(params, block_tag)
                 case Tag.INTERVALS:
-                    self.visit_interval_block(block, block_tag)
+                    self.visit_interval_block(params, block_tag)
                 case _:
                     raise ZWOMValidationError(f"Unknown workout tag: '{block_tag}'")
 
             # Dispatch any additional generic parameter validation within the block
-            for param, val in block[block_tag].items():
+            for param, val in params.items():
                 match param:
                     case Tag.POWER:
                         self.visit_power(val)
@@ -53,9 +56,9 @@ class ZWOMValidator:
                     case _:
                         continue
 
-    def visit_meta_block(self, block: BLOCK_T, block_tag: Tag) -> None:
-        params = block[block_tag]
-        _check_keys({Tag.NAME, Tag.AUTHOR, Tag.DESCRIPTION}, params.keys(), block_tag)
+    def visit_meta_block(self, params: PARAM_T, block_tag: Tag) -> None:
+        required_tags = {Tag.NAME, Tag.AUTHOR, Tag.DESCRIPTION}
+        _check_keys(required_tags, params.keys(), block_tag)
 
         ftp = params.get(Tag.FTP)
         if ftp is not None:
@@ -69,21 +72,20 @@ class ZWOMValidator:
                     f"FTP must be a positive integer, received: '{type(ftp).__name__}'"
                 )
 
-    def visit_segment_block(self, block: BLOCK_T, block_tag: Tag) -> None:
-        params = block[block_tag]
+    def visit_segment_block(self, params: PARAM_T, block_tag: Tag) -> None:
         required_tags = {Tag.DURATION}
         if block_tag == Tag.SEGMENT:
             required_tags = required_tags | {Tag.POWER}
 
         _check_keys(required_tags, params.keys(), block_tag)
 
-    def visit_ramp_block(self, block: BLOCK_T, block_tag: Tag) -> None:
-        params = block[block_tag]
-        _check_keys({Tag.DURATION, Tag.POWER}, params.keys(), block_tag)
+    def visit_ramp_block(self, params: PARAM_T, block_tag: Tag) -> None:
+        required_tags = {Tag.DURATION, Tag.POWER}
+        _check_keys(required_tags, params.keys(), block_tag)
 
-    def visit_interval_block(self, block: BLOCK_T, block_tag: Tag) -> None:
-        params = block[block_tag]
-        _check_keys({Tag.REPEAT, Tag.DURATION, Tag.POWER}, params.keys(), block_tag)
+    def visit_interval_block(self, params: PARAM_T, block_tag: Tag) -> None:
+        required_tags = {Tag.REPEAT, Tag.DURATION, Tag.POWER}
+        _check_keys(required_tags, params.keys(), block_tag)
 
     def visit_power(self, power_spec: VAL_T) -> None:
         # Validate that an FTP is set in order to use absolute watts
@@ -108,4 +110,4 @@ class ZWOMValidator:
             raise ZWOMValidationError("Cadence ranges are only valid for Interval blocks.")
 
         if block_tag == Tag.INTERVALS and not isinstance(cadence_spec, Range):
-            raise ZWOMValidationError("Interval blocks must have a cadence range.")
+            raise ZWOMValidationError("Cadence spec for Interval blocks must be a range.")
