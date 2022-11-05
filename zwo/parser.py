@@ -10,7 +10,7 @@ from parsimonious.grammar import Grammar
 from parsimonious.nodes import Node, NodeVisitor
 
 RAW_GRAMMAR = r"""
-    workout   = (block elws*)+ emptyline*
+    workout   = (block elws*)+
     block     = tag ws "{" (((message / value) ","?) / elws)+ "}"
     value     = tag ws (string / range / rangeval)
 
@@ -159,9 +159,7 @@ class ZWOVisitor(NodeVisitor):
 
     # Indices of visited_children are determined by the grammar specification
     def visit_workout(self, node: Node, visited_children: list[Node]) -> list[BLOCK_T]:
-        blocks, _ = visited_children
-
-        return [block[0] for block in blocks]
+        return [list(deep_flatten(block, key_type=dict))[0] for block in visited_children]
 
     def visit_block(self, node: Node, visited_children: list[Node]) -> BLOCK_T:
         tag = visited_children[0]
