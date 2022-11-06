@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from textwrap import dedent
 from xml.dom import minidom
 
 from zwo.interpreter import ZWOMValidator
@@ -71,8 +70,6 @@ class Workout:
                 if tag == Tag.DESCRIPTION:
                     if not isinstance(val, str):
                         raise ValueError("Type narrowing, shouldn't be able to get here")
-
-                    val = dedent(val)
 
                 tmp.appendChild(doc.createTextNode(val))
 

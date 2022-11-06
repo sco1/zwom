@@ -5,24 +5,25 @@ import typing as t
 from collections import deque
 from dataclasses import dataclass
 from enum import Enum, StrEnum, auto
+from textwrap import dedent
 
 from parsimonious.grammar import Grammar
 from parsimonious.nodes import Node, NodeVisitor
 
 RAW_GRAMMAR = r"""
-    workout   = (block elws*)+
-    block     = tag ws "{" (((message / value) ","?) / elws)+ "}"
+    workout   = (block elws*)+ / elws
+    block     = tag ws "{" (params / elws)+ "}"
+    params    = (message / value) ","?
     value     = tag ws (string / range / rangeval)
 
     message   = "@" ws duration ws string
     range     = rangeval ws "->" ws rangeval
-    rangeval  = (duration / numeric / zone)
-
+    rangeval  = duration / numeric / zone
     duration  = number ":" number
     percent   = number "%"
     zone      = ("Z" number) / "SS"
-    numeric   = (percent / number)
-    elws      = (ws / emptyline)
+    numeric   = percent / number
+    elws      = ws / emptyline
 
     tag       = ~"[A-Z]+"
     string    = ~'"[^\"]+"'
@@ -59,7 +60,7 @@ class Percentage:
     value: int
 
     def __str__(self) -> str:
-        return str(self.value / 100)
+        return f"{self.value / 100:0.3f}"
 
     @classmethod
     def from_node(cls, node: Node) -> Percentage:
@@ -159,7 +160,11 @@ class ZWOVisitor(NodeVisitor):
 
     # Indices of visited_children are determined by the grammar specification
     def visit_workout(self, node: Node, visited_children: list[Node]) -> list[BLOCK_T]:
-        return [list(deep_flatten(block, key_type=dict))[0] for block in visited_children]
+        # Catch an empty document
+        if not node.text.strip():
+            return []
+
+        return [list(deep_flatten(block, key_type=dict))[0] for block in visited_children[0]]
 
     def visit_block(self, node: Node, visited_children: list[Node]) -> BLOCK_T:
         tag = visited_children[0]
@@ -184,7 +189,7 @@ class ZWOVisitor(NodeVisitor):
         return {tag: val}
 
     def visit_string(self, node: Node, visited_children: list[Node]) -> str:
-        return node.text.strip('"')  # type: ignore[no-any-return]
+        return dedent(node.text.strip('"'))
 
     def visit_range(self, node: Node, visited_children: list[Node]) -> Range:
         return Range.from_node(visited_children)

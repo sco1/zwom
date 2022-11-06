@@ -52,19 +52,19 @@ cog.out(
 )
 ]]] -->
 ```
-workout   = (block elws*)+ emptyline*
-block     = tag ws "{" (((message / value) ","?) / elws)+ "}"
+workout   = (block elws*)+ / elws
+block     = tag ws "{" (params / elws)+ "}"
+params    = (message / value) ","?
 value     = tag ws (string / range / rangeval)
 
 message   = "@" ws duration ws string
 range     = rangeval ws "->" ws rangeval
-rangeval  = (duration / numeric / zone)
-
+rangeval  = duration / numeric / zone
 duration  = number ":" number
 percent   = number "%"
 zone      = ("Z" number) / "SS"
-numeric   = (percent / number)
-elws      = (ws / emptyline)
+numeric   = percent / number
+elws      = ws / emptyline
 
 tag       = ~"[A-Z]+"
 string    = ~'"[^\"]+"'
