@@ -1,7 +1,7 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
-## [vNext]
+## [v0.3.0]
 * #7 Add inline comment support
 * #8 Add metasyntax (`START_REPEAT`, `END_REPEAT`) for workout block group repetition
 * (Internal) `ZWOMValidator.validate_scanned` now returns a list of validated blocks
