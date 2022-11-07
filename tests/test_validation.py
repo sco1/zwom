@@ -8,6 +8,7 @@ from zwo.parser import BLOCK_T, Duration, PARAM_T, Percentage, Range, Tag
 THIRTY_SEC = dt.timedelta(seconds=30)
 THIRTY_SEC_DUR = Duration(THIRTY_SEC)
 DUR_RANGE = Range(THIRTY_SEC_DUR, THIRTY_SEC_DUR)
+POWER_PCT = Percentage(65)
 POWER_RANGE_PCT = Range(Percentage(25), Percentage(50))
 CADENCE_RANGE = Range(80, 120)
 
@@ -72,12 +73,21 @@ REQUIRED_KEY_CHECKS = (
     {Tag.WARMUP: RAMP_BLOCK},
     {Tag.RAMP: RAMP_BLOCK},
     {Tag.COOLDOWN: RAMP_BLOCK},
+    {Tag.START_REPEAT: {Tag.REPEAT: 3}},
+    {Tag.END_REPEAT: {}},
 )
 
 
 @pytest.mark.parametrize(("block"), REQUIRED_KEY_CHECKS)
 def test_check_block_keys(block: BLOCK_T) -> None:
-    blocks = [{Tag.META: META_BLOCK}, block]
+    block_tag = next(iter(block))
+    if block_tag == Tag.START_REPEAT:
+        blocks = [{Tag.META: META_BLOCK}, block, {Tag.END_REPEAT: {}}]
+    elif block_tag == Tag.END_REPEAT:
+        blocks = [{Tag.META: META_BLOCK}, {Tag.START_REPEAT: {Tag.REPEAT: 3}}, block]
+    else:
+        blocks = [{Tag.META: META_BLOCK}, block]
+
     ZWOMValidator(blocks)
 
 
@@ -174,3 +184,62 @@ def test_interval_cadence_range() -> None:
         },
     ]
     ZWOMValidator(blocks)
+
+
+def test_chunk_repeat() -> None:
+    raw_blocks = [
+        {Tag.META: META_BLOCK},
+        {Tag.START_REPEAT: {Tag.REPEAT: 2}},
+        {Tag.SEGMENT: {Tag.DURATION: THIRTY_SEC_DUR, Tag.POWER: POWER_PCT}},
+        {Tag.END_REPEAT: {}},
+    ]
+
+    truth_blocks = [
+        {Tag.META: META_BLOCK},
+        {Tag.SEGMENT: {Tag.DURATION: THIRTY_SEC_DUR, Tag.POWER: POWER_PCT}},
+        {Tag.SEGMENT: {Tag.DURATION: THIRTY_SEC_DUR, Tag.POWER: POWER_PCT}},
+    ]
+
+    val = ZWOMValidator(raw_blocks)
+    assert val.validated_blocks == truth_blocks
+
+
+def test_nested_chunk_repeat_raises() -> None:
+    blocks = [
+        {Tag.META: META_BLOCK},
+        {Tag.START_REPEAT: {Tag.REPEAT: 2}},
+        {Tag.START_REPEAT: {Tag.REPEAT: 2}},
+    ]
+    with pytest.raises(ZWOMValidationError):
+        ZWOMValidator(blocks)
+
+
+def test_missing_end_repeat_raises() -> None:
+    blocks = [
+        {Tag.META: META_BLOCK},
+        {Tag.START_REPEAT: {Tag.REPEAT: 2}},
+    ]
+    with pytest.raises(ZWOMValidationError):
+        ZWOMValidator(blocks)
+
+
+BAD_REPEATS = (
+    ({Tag.START_REPEAT: {Tag.REPEAT: 0}},),
+    ({Tag.START_REPEAT: {Tag.REPEAT: CADENCE_RANGE}},),
+)
+
+
+@pytest.mark.parametrize(("start_block",), BAD_REPEATS)
+def test_bad_chunk_repeat_val_raises(start_block: BLOCK_T) -> None:
+    blocks = [{Tag.META: META_BLOCK}, start_block, {Tag.END_REPEAT: {}}]
+    with pytest.raises(ZWOMValidationError):
+        ZWOMValidator(blocks)
+
+
+def test_chunk_repeat_end_no_start_raises() -> None:
+    blocks = [
+        {Tag.META: META_BLOCK},
+        {Tag.END_REPEAT: {}},
+    ]
+    with pytest.raises(ZWOMValidationError):
+        ZWOMValidator(blocks)

@@ -67,7 +67,7 @@ numeric   = percent / number
 elws      = ws / emptyline
 
 comment   = ~r"\;[^\r\n]*"
-tag       = ~"[A-Z]+"
+tag       = ~"[A-Z_]+"
 string    = ~'"[^\"]+"'
 number    = ~"\d+"
 ws        = ~"\s*"
@@ -131,8 +131,42 @@ Workout blocks can contain the following (optionally) comma-separated parameters
 4. Power is ignored for Free segments
 5. Message timestamps are relative to their containing block
 
+### Repeating a Chunk of Blocks
+The `START_REPEAT` and `END_REPEAT` meta blocks are provided to specify an arbitrary chunk of blocks to repeat. The `START_REPEAT` block must specify a `REPEAT` parameter; `END_REPEAT` accepts no parameters. Nested repeats are not currently supported.
 
-### Sample Workout
+For example:
+
+```
+SEGMENT {DURATION 2:00, POWER 65%}
+RAMP {
+    DURATION 2:00,
+    POWER 120% -> 140%,
+    @ 0:00 "Here goes the ramp!",
+    @ 1:50 "10 seconds left!",
+}
+SEGMENT {DURATION 2:00, POWER 65%}
+RAMP {
+    DURATION 2:00,
+    POWER 120% -> 140%,
+    @ 0:00 "Here goes the ramp!",
+    @ 1:50 "10 seconds left!",
+}
+```
+Becomes:
+
+```
+START_REPEAT {REPEAT 2}
+SEGMENT {DURATION 2:00, POWER 65%}
+RAMP {
+    DURATION 2:00,
+    POWER 120% -> 140%,
+    @ 0:00 "Here goes the ramp!",
+    @ 1:50 "10 seconds left!",
+}
+END_REPEAT {}
+```
+
+## Sample Workout
 ```
 ; Here is a workout-level comment!
 META {

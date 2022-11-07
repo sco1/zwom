@@ -26,7 +26,7 @@ RAW_GRAMMAR = r"""
     elws      = ws / emptyline
 
     comment   = ~r"\;[^\r\n]*"
-    tag       = ~"[A-Z]+"
+    tag       = ~"[A-Z_]+"
     string    = ~'"[^\"]+"'
     number    = ~"\d+"
     ws        = ~"\s*"
@@ -54,6 +54,10 @@ class Tag(StrEnum):
     WARMUP = auto()
 
     MESSAGES = auto()  # Included for tidier housekeeping, not a valid keyword in the ZWO file
+
+    # Repeat segment metasyntax
+    START_REPEAT = auto()
+    END_REPEAT = auto()
 
 
 @dataclass(frozen=True, slots=True)

@@ -222,3 +222,13 @@ def test_segment_with_multiline_message() -> None:
     msg = Message(timestamp=SAMPLE_DURATION, message="Yo quiero\nTaco Bell")
     truth_block = {Tag.FREE: {Tag.DURATION: SAMPLE_DURATION}, Tag.MESSAGES: [msg]}
     assert parse_src(src)[0] == truth_block
+
+
+def test_underscore_in_tag() -> None:
+    src = dedent(
+        """\
+        START_REPEAT {REPEAT 3}
+        """
+    )
+    truth_block = {Tag.START_REPEAT: {Tag.REPEAT: 3}, Tag.MESSAGES: None}
+    assert parse_src(src)[0] == truth_block
