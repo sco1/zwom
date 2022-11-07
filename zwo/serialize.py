@@ -265,6 +265,6 @@ def convert_zwom(zwom_filepath: Path, out_filepath: Path | None = None) -> None:
 
     blocks = parse_src(zwom_filepath.read_text())
     val = ZWOMValidator(blocks)
-    wo = Workout(blocks, val._ftp)
+    wo = Workout(val.validated_blocks, val._ftp)
 
     wo.to_zwo(out_filepath)
