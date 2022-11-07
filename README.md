@@ -112,7 +112,7 @@ Following the `META` block are your workout blocks:
 When writing your `*.zwom` file, these 3 blocks can be used interchangably, and ZWOM will try to match this behavior when outputting its `*.zwo` file. Zwift may do its own normalization if edits are made in the workout UI.
 
 ### Workout Block Metadata
-Workout blocks can contain the following comma-separated parameters:
+Workout blocks can contain the following (optionally) comma-separated parameters:
 
 | Keyword    | Description         | Accepted Inputs                                    | Optional?                |
 |------------|---------------------|----------------------------------------------------|--------------------------|
@@ -128,6 +128,8 @@ Workout blocks can contain the following comma-separated parameters:
 4. Power is ignored for Free segments
 5. Message timestamps are relative to their containing block
 
+Single line in-block comments may also be specified by a leading `;`.
+
 
 ### Sample Workout
 ```
@@ -142,6 +144,7 @@ META {
 }
 FREE {DURATION 10:00}
 INTERVALS {
+    ; Here is a comment!
     REPEAT 3,
     DURATION 1:00 -> 0:30,
     POWER 55% -> 78%,

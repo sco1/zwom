@@ -12,7 +12,7 @@ from parsimonious.nodes import Node, NodeVisitor
 
 RAW_GRAMMAR = r"""
     workout   = (block elws*)+ / elws
-    block     = tag ws "{" (params / elws)+ "}"
+    block     = tag ws "{" ((comment / params) / elws)+ "}"
     params    = (message / value) ","?
     value     = tag ws (string / range / rangeval)
 
@@ -25,6 +25,7 @@ RAW_GRAMMAR = r"""
     numeric   = percent / number
     elws      = ws / emptyline
 
+    comment   = ~r"\;[^\r\n]*"
     tag       = ~"[A-Z]+"
     string    = ~'"[^\"]+"'
     number    = ~"\d+"

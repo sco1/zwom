@@ -1,6 +1,9 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [vNext]
+* #7 Add support for in-block comments
+
 ## [v0.2.0]
 ### Added
 * Add ZWOM file validation
