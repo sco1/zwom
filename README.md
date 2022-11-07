@@ -52,8 +52,8 @@ cog.out(
 )
 ]]] -->
 ```
-workout   = (block elws*)+ / elws
-block     = tag ws "{" (params / elws)+ "}"
+workout   = ((comment / block) elws*)+ / elws
+block     = tag ws "{" ((comment / params) / elws)+ "}"
 params    = (message / value) ","?
 value     = tag ws (string / range / rangeval)
 
@@ -66,6 +66,7 @@ zone      = ("Z" number) / "SS"
 numeric   = percent / number
 elws      = ws / emptyline
 
+comment   = ~r"\;[^\r\n]*"
 tag       = ~"[A-Z]+"
 string    = ~'"[^\"]+"'
 number    = ~"\d+"
@@ -76,6 +77,8 @@ emptyline = ws+
 
 ### Syntax & Keywords
 Like Zwift's built-in workout builder, the ZWO minilang is a block-based system. Blocks are specified using a `<tag> {<block contents>}` format supporting arbitrary whitespace.
+
+Inline comments are also supported, denoted by a leading `;`.
 
 ### Workout Metadata
 Each ZWO file must begin with a `META` block containing comma-separated parameters:
@@ -128,11 +131,10 @@ Workout blocks can contain the following (optionally) comma-separated parameters
 4. Power is ignored for Free segments
 5. Message timestamps are relative to their containing block
 
-Single line in-block comments may also be specified by a leading `;`.
-
 
 ### Sample Workout
 ```
+; Here is a workout-level comment!
 META {
     NAME "Sample Workout",
     AUTHOR "sco1",
@@ -144,7 +146,7 @@ META {
 }
 FREE {DURATION 10:00}
 INTERVALS {
-    ; Here is a comment!
+    ; Here is a block-level comment!
     REPEAT 3,
     DURATION 1:00 -> 0:30,
     POWER 55% -> 78%,

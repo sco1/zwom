@@ -11,7 +11,7 @@ from parsimonious.grammar import Grammar
 from parsimonious.nodes import Node, NodeVisitor
 
 RAW_GRAMMAR = r"""
-    workout   = (block elws*)+ / elws
+    workout   = ((comment / block) elws*)+ / elws
     block     = tag ws "{" ((comment / params) / elws)+ "}"
     params    = (message / value) ","?
     value     = tag ws (string / range / rangeval)
@@ -165,7 +165,14 @@ class ZWOVisitor(NodeVisitor):
         if not node.text.strip():
             return []
 
-        return [list(deep_flatten(block, key_type=dict))[0] for block in visited_children[0]]
+        blocks = []
+        for chunk in visited_children[0]:
+            # The grammar here matches comments or blocks, if there are no dictionaries then we
+            # have a comment, which we just discard
+            if block := list(deep_flatten(chunk, key_type=dict)):
+                blocks.append(block[0])
+
+        return blocks
 
     def visit_block(self, node: Node, visited_children: list[Node]) -> BLOCK_T:
         tag = visited_children[0]
