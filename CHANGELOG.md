@@ -1,9 +1,18 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [vNext]
+### Added
+### Changed
+### Fixed
+    * Fix serializer incorrectly raising when Cadence isn't specified for an Interval block.
+
 ## [v0.3.0]
+### Added
 * #7 Add inline comment support
 * #8 Add metasyntax (`START_REPEAT`, `END_REPEAT`) for workout block group repetition
+
+### Changed
 * (Internal) `ZWOMValidator.validate_scanned` now returns a list of validated blocks
 
 ## [v0.2.0]

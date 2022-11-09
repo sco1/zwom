@@ -200,10 +200,10 @@ class Workout:
         block_element.setAttribute("OffPower", self.serialize_power(power_range.right))
 
         cadence_range = params.get(Tag.CADENCE)
-        if not isinstance(cadence_range, Range):
-            raise ValueError("Type narrowing, shouldn't be able to get here")
-
         if cadence_range:
+            if not isinstance(cadence_range, Range):
+                raise ValueError("Type narrowing, shouldn't be able to get here")
+
             block_element.setAttribute("Cadence", str(cadence_range.left))
             block_element.setAttribute("CadenceResting", str(cadence_range.right))
 
