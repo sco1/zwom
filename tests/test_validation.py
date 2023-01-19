@@ -63,7 +63,7 @@ def test_check_keys_missing_raises() -> None:
         _check_keys({Tag.NAME, Tag.AUTHOR, Tag.DESCRIPTION}, META_BLOCK_MISSING.keys(), Tag.META)
 
 
-RAMP_BLOCK = {Tag.DURATION: Duration(THIRTY_SEC), Tag.POWER: POWER_RANGE_PCT}
+RAMP_BLOCK = {Tag.DURATION: THIRTY_SEC_DUR, Tag.POWER: POWER_RANGE_PCT}
 
 
 REQUIRED_KEY_CHECKS = (

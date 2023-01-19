@@ -60,7 +60,7 @@ class Tag(StrEnum):
     END_REPEAT = auto()
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, order=True)
 class Percentage:
     value: int
 
@@ -99,7 +99,7 @@ class Duration:
         return cls(value=dt.timedelta(minutes=minutes, seconds=seconds))
 
 
-RANGE_T = Percentage | Duration | PowerZone | int
+RANGE_T: t.TypeAlias = Percentage | Duration | PowerZone | int
 
 
 @dataclass(frozen=True, slots=True)
@@ -154,9 +154,9 @@ def deep_flatten(in_iter: list, key_type: type[T]) -> t.Generator[T, None, None]
             iterators.pop()
 
 
-VAL_T = int | str | Percentage | Duration | Range | list[Message] | None
-PARAM_T = dict[Tag, VAL_T]
-BLOCK_T = dict[Tag, PARAM_T]
+VAL_T: t.TypeAlias = int | str | Percentage | Duration | Range | list[Message] | None
+PARAM_T: t.TypeAlias = dict[Tag, VAL_T]
+BLOCK_T: t.TypeAlias = dict[Tag, PARAM_T]
 
 
 class ZWOVisitor(NodeVisitor):

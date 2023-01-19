@@ -104,7 +104,7 @@ class Workout:
                         doc, BLOCK_MAPPING[block_tag], params, add_power=True, add_pace=True
                     )
                 case Tag.RAMP | Tag.WARMUP | Tag.COOLDOWN:
-                    zwift_key = _classify_ramp_type(idx, n_blocks)
+                    zwift_key = _classify_ramp_type(idx, n_blocks, params)
                     block_element = self._build_simple_block(doc, zwift_key, params, add_pace=True)
                     block_element = self.serialize_ramp(block_element, params)
                 case Tag.INTERVALS:
@@ -231,22 +231,27 @@ class Workout:
             return str(power)
 
 
-def _classify_ramp_type(block_idx: int, n_blocks: int) -> str:
+def _classify_ramp_type(block_idx: int, n_blocks: int, params: PARAM_T) -> str:
     """
     Locate the appropriate Zwift block tag for the provided ramp block location.
 
     While there is no specific Ramp block in the workout building UI, some experimental observations
     have been made:
         * If a ramp is at the very beginning of the workout, Zwift serializes it as a Warmup block
-        * If there are multiple blocks in a workout and a ramp is at the end, Zwift serializes it
-        as a Cooldown block
+        * If there are multiple blocks in a workout and a ramp is at the end, there are two paths:
+            * If the left power is higher than the right power, Zwift serializes it as a Cooldown
+            * If the right power is higher than the left power, Zwift serializes it as a Ramp
         * If there are multiple blocks in a workout and a ramp is not at the beginning or the end,
         Zwift serializes it as a Ramp block
     """
+    power_spec = params[Tag.POWER]
     if block_idx == 1:
         return BLOCK_MAPPING[Tag.WARMUP]
     if block_idx == n_blocks:
-        return BLOCK_MAPPING[Tag.COOLDOWN]
+        if power_spec.right < power_spec.left:
+            return BLOCK_MAPPING[Tag.COOLDOWN]
+        else:
+            return BLOCK_MAPPING[Tag.RAMP]
     else:
         return BLOCK_MAPPING[Tag.RAMP]
 
