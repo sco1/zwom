@@ -1,5 +1,5 @@
 # ZWO Minilang
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/zwolang)](https://pypi.org/project/zwolang/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/zwolang/0.3.0?logo=python&logoColor=FFD43B)](https://pypi.org/project/zwolang/)
 [![PyPI](https://img.shields.io/pypi/v/zwolang)](https://pypi.org/project/zwolang/)
 [![PyPI - License](https://img.shields.io/pypi/l/zwolang?color=magenta)](https://github.com/sco1/zwom/blob/master/LICENSE)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sco1/zwom/main.svg)](https://results.pre-commit.ci/latest/github/sco1/zwom/main)
@@ -108,9 +108,11 @@ Following the `META` block are your workout blocks:
 | `WARMUP`    | Warmup             |
 
 **NOTE:** While there is no specific Ramp block in the workout building UI, some experimental observations have been made:
-  * If a ramp is at the very beginning of the workout, Zwift serializes it as a Warmup block
-  * If there are multiple blocks in a workout and a ramp is at the end, Zwift serializes it as a Cooldown block
-  * If there are multiple blocks in a workout and a ramp is not at the beginning or the end, Zwift serializes it as a Ramp block
+  * If a Ramp is at the very beginning of the workout, Zwift serializes it as a Warmup block
+  * If there are multiple blocks in a workout and a Ramp is at the end, there are two paths:
+    * If the left power is higher than the right power, Zwift serializes it as a Cooldown block
+    * If the right power is higher than the left power, Zwift serializes it as a Ramp block
+  * If there are multiple blocks in a workout and a Ramp is not at the beginning nor the end, Zwift serializes it as a Ramp block
 
 When writing your `*.zwom` file, these 3 blocks can be used interchangably, and ZWOM will try to match this behavior when outputting its `*.zwo` file. Zwift may do its own normalization if edits are made in the workout UI.
 
