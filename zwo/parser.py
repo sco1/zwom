@@ -160,7 +160,6 @@ BLOCK_T: t.TypeAlias = dict[Tag, PARAM_T]
 
 
 class ZWOVisitor(NodeVisitor):
-
     grammar = GRAMMAR
 
     # Indices of visited_children are determined by the grammar specification
