@@ -1,12 +1,15 @@
-[tool.poetry]
+[project]
 name = "zwolang"
 version = "0.3.0"
-description = "Python toolkit for the ZWO minilang"
-authors = ["sco1 <sco1.git@gmail.com>"]
+description = "Python toolkit for the ZWO minilang."
+authors = [
+    {name = "sco1", email = "sco1.git@gmail.com"}
+]
+maintainers = [
+    {name = "sco1", email = "sco1.git@gmail.com"}
+]
 
 readme = "README.md"
-homepage = "https://github.com/sco1/"
-repository = "https://github.com/sco1/zwo"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -14,41 +17,46 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
 ]
-packages = [{include="zwo"}]
 
-include = [
-    {path = "./CHANGELOG.md", format = "sdist"}
+requires-python = ">=3.11"
+dependencies = [
+    "parsimonious~=0.10",
+    "rich~=13.9",
+    "sco1-misc~=0.1",
+    "typer~=0.12",
 ]
 
-[tool.poetry.scripts]
+[project.urls]
+Homepage = "https://github.com/sco1/"
+Documentation = "https://github.com/sco1/zwom/blob/main/README.md"
+Repository = "https://github.com/sco1/zwom"
+Issues = "https://github.com/sco1/zwom/issues"
+Changelog = "https://github.com/sco1/zwom/blob/main/CHANGELOG.md"
+
+[project.scripts]
 zwom = "zwo.cli:zwom_cli"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-parsimonious = "^0.10"
-rich = "^13.1"
-sco1-misc = "^0.1"
-typer = "^0.7"
-
-[tool.poetry.dev-dependencies]
-black = "^23.1"
-bump2version = "^1.0"
-cogapp = "^3.3"
-flake8 = "^6.0"
-flake8-annotations = "^3.0"
-flake8-bugbear = "^23.1"
-flake8-docstrings = "^1.7"
-flake8-fixme = "^1.1"
-isort = "^5.10"
-mypy = "^1.0"
-pep8-naming = "^0.13"
-pre-commit = "^3.0"
-pytest = "^7.2"
-pytest-cov = "^4.0"
-pytest-randomly = "^3.12"
-tox = "^4.4"
+[tool.uv]
+dev-dependencies = [
+    "black~=24.8",
+    "bump2version~=1.0",
+    "cogapp~=3.4",
+    "flake8~=7.1",
+    "flake8-annotations~=3.1",
+    "isort~=5.13",
+    "mypy~=1.11",
+    "pre-commit~=3.8",
+    "pytest-cov~=5.0",
+    "pytest-randomly~=3.15",
+    "pytest~=8.3",
+    "ruff~=0.6",
+    "tox~=4.18",
+    "tox-uv~=1.11",
+]
 
 [tool.black]
 line-length = 100
@@ -63,7 +71,7 @@ line_length = 100
 
 [tool.mypy]
 disallow_incomplete_defs = true
-disallow_untyped_calls = false
+disallow_untyped_calls = true
 disallow_untyped_decorators = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
@@ -75,5 +83,8 @@ warn_unused_configs = true
 warn_unused_ignores = true
 
 [build-system]
-requires = ["poetry-core>=1.2"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["zwo/"]

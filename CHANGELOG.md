@@ -4,8 +4,9 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 ## [vNext]
 ### Added
 ### Changed
+* (Internal) Migrate to uv from poetry
 ### Fixed
-    * Fix serializer incorrectly raising when Cadence isn't specified for an Interval block.
+* Fix serializer incorrectly raising when Cadence isn't specified for an Interval block.
 
 ## [v0.3.0]
 ### Added

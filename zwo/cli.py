@@ -28,7 +28,7 @@ def single(
                 title="Select ZWOM file for conversion", filetypes=[("ZWOM", "*.zwom")]
             )
         except ValueError:
-            raise click.ClickException("No file selected, aborting.")
+            raise click.ClickException("No file selected, aborting.") from None
 
     convert_zwom(zwom_file, out_file)
 
@@ -47,7 +47,7 @@ def batch(
         try:
             top_dir = prompts.prompt_for_dir(title="Select ZWOM directory")
         except ValueError:
-            raise click.ClickException("No directory selected, aborting.")
+            raise click.ClickException("No directory selected, aborting.") from None
 
     pattern = "*.zwom"
     if recursive:

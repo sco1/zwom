@@ -26,9 +26,9 @@ cog.out(
 ]]] -->
 ```
 $ zwom --help
-                                                                               
- Usage: zwom [OPTIONS] COMMAND [ARGS]...                                       
-                                                                               
+
+ Usage: zwom [OPTIONS] COMMAND [ARGS]...
+
 +- Options -------------------------------------------------------------------+
 | --help          Show this message and exit.                                 |
 +-----------------------------------------------------------------------------+
