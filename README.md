@@ -3,8 +3,6 @@
 [![PyPI](https://img.shields.io/pypi/v/zwolang)](https://pypi.org/project/zwolang/)
 [![PyPI - License](https://img.shields.io/pypi/l/zwolang?color=magenta)](https://github.com/sco1/zwom/blob/master/LICENSE)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sco1/zwom/main.svg)](https://results.pre-commit.ci/latest/github/sco1/zwom/main)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
-[![Open in Visual Studio Code](https://img.shields.io/badge/Open%20in-VSCode.dev-blue)](https://vscode.dev/github.com/sco1/zwom)
 
 Python toolkit for the ZWO minilang.
 
