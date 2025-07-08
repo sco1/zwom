@@ -24,16 +24,14 @@ cog.out(
 ]]] -->
 ```
 $ zwom --help
+Usage: zwom [OPTIONS] COMMAND [ARGS]...
 
- Usage: zwom [OPTIONS] COMMAND [ARGS]...
+Options:
+  --help  Show this message and exit.
 
-+- Options -------------------------------------------------------------------+
-| --help          Show this message and exit.                                 |
-+-----------------------------------------------------------------------------+
-+- Commands ------------------------------------------------------------------+
-| batch    Discover and convert all `*.zwom` files in the given directory.    |
-| single   Convert the specified `*.zwom` file to Zwift's `*.zwo`.            |
-+-----------------------------------------------------------------------------+
+Commands:
+  single  Convert the specified `*.zwom` file to Zwift's `*.zwo`.
+  batch   Discover and convert all `*.zwom` files in the given directory.
 ```
 <!-- [[[end]]] -->
 
