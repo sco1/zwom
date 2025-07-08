@@ -23,9 +23,8 @@ classifiers = [
 requires-python = ">=3.11"
 dependencies = [
     "parsimonious~=0.10",
-    "rich~=13.9",
     "sco1-misc~=0.1",
-    "typer~=0.12",
+    "typer-slim~=0.12",
 ]
 
 [project.urls]
@@ -41,7 +40,6 @@ zwom = "zwo.cli:zwom_cli"
 [tool.uv]
 dev-dependencies = [
     "black~=25.0",
-    "bump2version~=1.0",
     "cogapp~=3.4",
     "flake8~=7.1",
     "flake8-annotations~=3.1",
@@ -52,6 +50,7 @@ dev-dependencies = [
     "pytest-randomly~=3.15",
     "pytest~=8.3",
     "ruff~=0.6",
+    "sco1-bumper~=2.0",
     "tox~=4.18",
     "tox-uv~=1.11",
 ]
