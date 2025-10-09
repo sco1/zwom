@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
 ]
 
@@ -37,8 +38,8 @@ Changelog = "https://github.com/sco1/zwom/blob/main/CHANGELOG.md"
 [project.scripts]
 zwom = "zwo.cli:zwom_cli"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "black~=25.0",
     "cogapp~=3.4",
     "flake8~=7.1",
@@ -71,6 +72,7 @@ disallow_incomplete_defs = true
 disallow_untyped_calls = true
 disallow_untyped_decorators = true
 disallow_untyped_defs = true
+enable_error_code = "exhaustive-match"
 ignore_missing_imports = true
 no_implicit_optional = true
 show_error_codes = true
@@ -79,9 +81,10 @@ warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.uv.build-backend]
+module-name = "zwo"
+module-root = ""
 
-[tool.hatch.build.targets.wheel]
-packages = ["zwo/"]
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
