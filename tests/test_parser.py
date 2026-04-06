@@ -75,22 +75,18 @@ BLOCK_SINGLE_PARAM = (
     ("FREE {DURATION 11:06}",),
     ("FREE {DURATION 11:06,}",),
     (
-        dedent(
-            """\
+        dedent("""\
             FREE {
                 DURATION 11:06
             }
-            """
-        ),
+            """),
     ),
     (
-        dedent(
-            """\
+        dedent("""\
             FREE {
                 DURATION 11:06,
             }
-            """
-        ),
+            """),
     ),
 )
 TRUTH_SINGLE_BLOCK_SINGLE_PARAM = [{Tag.FREE: {Tag.DURATION: SAMPLE_DURATION}, Tag.MESSAGES: None}]
@@ -105,42 +101,34 @@ BLOCK_MULTI_PARAM = (
     ("SEGMENT {DURATION 11:06, POWER 65%}",),
     ("SEGMENT {DURATION 11:06, POWER 65%,}",),
     (
-        dedent(
-            """\
+        dedent("""\
             SEGMENT {
                 DURATION 11:06, POWER 65%
             }
-            """
-        ),
+            """),
     ),
     (
-        dedent(
-            """\
+        dedent("""\
             SEGMENT {
                 DURATION 11:06, POWER 65%,
             }
-            """
-        ),
+            """),
     ),
     (
-        dedent(
-            """\
+        dedent("""\
             SEGMENT {
                 DURATION 11:06,
                 POWER 65%
             }
-            """
-        ),
+            """),
     ),
     (
-        dedent(
-            """\
+        dedent("""\
             SEGMENT {
                 DURATION 11:06,
                 POWER 65%,
             }
-            """
-        ),
+            """),
     ),
 )
 TRUTH_SINGLE_BLOCK_MULTI_PARAM = [
@@ -154,12 +142,10 @@ def test_block_multi_param(src: str) -> None:
 
 
 def test_multi_block() -> None:
-    src = dedent(
-        """\
+    src = dedent("""\
         FREE {DURATION 11:06}
         SEGMENT {DURATION 11:06, POWER 65%}
-        """
-    )
+        """)
     truth_blocks = [
         {Tag.FREE: {Tag.DURATION: SAMPLE_DURATION}, Tag.MESSAGES: None},
         {
@@ -171,64 +157,54 @@ def test_multi_block() -> None:
 
 
 def test_block_with_multiline_description() -> None:
-    src = dedent(
-        """\
+    src = dedent("""\
         META {
             DESCRIPTION "Yo quiero
         Taco Bell",
         }
-        """
-    )
+        """)
     truth_block = {Tag.META: {Tag.DESCRIPTION: "Yo quiero\nTaco Bell"}, Tag.MESSAGES: None}
     assert parse_src(src)[0] == truth_block
 
 
 def test_segment_with_message() -> None:
-    src = dedent(
-        """\
+    src = dedent("""\
         FREE {
             DURATION 11:06,
             @ 11:06 "Yo quiero Taco Bell",
         }
-        """
-    )
+        """)
     truth_block = {Tag.FREE: {Tag.DURATION: SAMPLE_DURATION}, Tag.MESSAGES: [SAMPLE_MESSAGE]}
     assert parse_src(src)[0] == truth_block
 
 
 def test_segment_with_leading_message() -> None:
-    src = dedent(
-        """\
+    src = dedent("""\
         FREE {
             @ 11:06 "Yo quiero Taco Bell",
             DURATION 11:06,
         }
-        """
-    )
+        """)
     truth_block = {Tag.FREE: {Tag.DURATION: SAMPLE_DURATION}, Tag.MESSAGES: [SAMPLE_MESSAGE]}
     assert parse_src(src)[0] == truth_block
 
 
 def test_segment_with_multiline_message() -> None:
-    src = dedent(
-        """\
+    src = dedent("""\
         FREE {
             DURATION 11:06,
             @ 11:06 "Yo quiero
         Taco Bell",
         }
-        """
-    )
+        """)
     msg = Message(timestamp=SAMPLE_DURATION, message="Yo quiero\nTaco Bell")
     truth_block = {Tag.FREE: {Tag.DURATION: SAMPLE_DURATION}, Tag.MESSAGES: [msg]}
     assert parse_src(src)[0] == truth_block
 
 
 def test_underscore_in_tag() -> None:
-    src = dedent(
-        """\
+    src = dedent("""\
         START_REPEAT {REPEAT 3}
-        """
-    )
+        """)
     truth_block = {Tag.START_REPEAT: {Tag.REPEAT: 3}, Tag.MESSAGES: None}
     assert parse_src(src)[0] == truth_block
